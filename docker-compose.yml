@@ -3,4 +3,4 @@ services:
     image: yourdockerusername/uvic-course-api:latest
     restart: always
     ports:
-      - "80:8080"
+      - "8080:8080"
