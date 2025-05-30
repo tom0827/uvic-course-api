@@ -3,6 +3,4 @@ services:
     image: yourdockerusername/uvic-course-api:latest
     restart: always
     ports:
-      - "8080:8080"
-    # env_file:
-    #   - .env
+      - "80:8080"
