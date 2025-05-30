@@ -41,6 +41,6 @@ jobs:
         sudo docker pull ${{ secrets.DOCKER_USERNAME }}/uvic-course-api:latest
         sudo docker stop uvic-course-api || true
         sudo docker rm uvic-course-api || true
-        sudo docker run --name uvic-course-api \
+        sudo docker run -d --name uvic-course-api \
           --restart always \
           ${{ secrets.DOCKER_USERNAME }}/uvic-course-api:latest

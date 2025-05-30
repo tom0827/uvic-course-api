@@ -1,8 +1,8 @@
-version: '3.8'
-
 services:
-  api:
-    build: .
+  uvic-course-api:
+    image: yourdockerusername/uvic-course-api:latest
+    restart: always
     ports:
       - "8080:8080"
-    container_name: basic-go-api
+    # env_file:
+    #   - .env
