@@ -1,0 +1,17 @@
+# Ignore Go build cache and binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Ignore git files
+.git
+.gitignore
+
+# Ignore local dev files
+*.swp
+*.tmp
