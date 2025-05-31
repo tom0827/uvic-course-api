@@ -1,14 +1,15 @@
 package main
 
 import (
+	"course-api/handlers"
 	"log"
 	"net/http"
-	"course-api/handlers"
 )
 
 func main() {
 	apiMux := http.NewServeMux()
 	apiMux.HandleFunc("/courses", handlers.CoursesHandler)
+	apiMux.HandleFunc("/sections", handlers.SectionHandler)
 
 	http.Handle("/api/", http.StripPrefix("/api", apiMux))
 
