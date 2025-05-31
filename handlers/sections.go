@@ -11,7 +11,7 @@ import (
 )
 
 /*
-function SectionHandler handles requests for course sections.
+function SectionHandler
 It expects the following query parameters:
 - subject: The subject code of the course (e.g., "SENG").
 - number: The course number (e.g., "499").

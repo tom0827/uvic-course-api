@@ -8,7 +8,7 @@ import (
 
 func main() {
 	apiMux := http.NewServeMux()
-	apiMux.HandleFunc("/courses", handlers.CoursesHandler)
+	apiMux.HandleFunc("/info", handlers.InfoHandler)
 	apiMux.HandleFunc("/sections", handlers.SectionHandler)
 
 	http.Handle("/api/", http.StripPrefix("/api", apiMux))
