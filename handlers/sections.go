@@ -8,38 +8,23 @@ import (
 	"io"
 	"net/http"
 	"net/http/cookiejar"
+
+	"github.com/gorilla/mux"
 )
 
 /*
 function SectionHandler
-It expects the following query parameters:
-- subject: The subject code of the course (e.g., "SENG").
-- number: The course number (e.g., "499").
-- year: The year of the course (e.g., "2025").
-- term: The term of the course (e.g., "05" for Summer).
+/api/courses/sections/{term}/{course}
+Fetches sections for a given course term, subject, and number from the Kuali API.
 */
 func SectionHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+	vars := mux.Vars(r)
+	term := vars["term"]
+	course := vars["course"]
 
-	subject := r.URL.Query().Get("subject")
-	number := r.URL.Query().Get("number")
-	year := r.URL.Query().Get("year")
-	term := r.URL.Query().Get("term")
-
-	validParams := subject != "" && number != "" && year != "" && term != ""
-
-	if !validParams {
-		http.Error(w, "Invalid parameters", http.StatusBadRequest)
-		return
-	}
-
-	yearAndTerm := year + term
-
-	cookieLink := fmt.Sprintf(constants.CookieUrl, yearAndTerm)
-	dataLink := fmt.Sprintf(constants.SectionsUrl, yearAndTerm, subject, number)
+	subject, number := utils.SplitCourseCode(course)
+	cookieLink := fmt.Sprintf(constants.CookieUrl, term)
+	dataLink := fmt.Sprintf(constants.SectionsUrl, term, subject, number)
 
 	jar, _ := cookiejar.New(nil)
 	client := &http.Client{Jar: jar}
@@ -67,6 +52,18 @@ func SectionHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		utils.WriteError(w, "Failed to decode JSON")
+		return
+	}
+
+	numOfSections, ok := result["sectionsFetchedCount"].(float64)
+
+	if !ok {
+		utils.WriteError(w, "Invalid sections count in response")
+		return
+	}
+
+	if int(numOfSections) == 0 {
+		utils.WriteSuccess(w, []map[string]any{})
 		return
 	}
 

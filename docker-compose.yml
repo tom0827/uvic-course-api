@@ -1,6 +1,6 @@
 services:
   uvic-course-api:
-    image: yourdockerusername/uvic-course-api:latest
+    build: .
     restart: always
     ports:
       - "8080:8080"

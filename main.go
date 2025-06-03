@@ -2,17 +2,16 @@ package main
 
 import (
 	"course-api/handlers"
-	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
-	apiMux := http.NewServeMux()
-	apiMux.HandleFunc("/info", handlers.InfoHandler)
-	apiMux.HandleFunc("/sections", handlers.SectionHandler)
+	r := mux.NewRouter()
+	r.HandleFunc("/api/courses/info/{pid}", handlers.InfoHandler).Methods("GET")
+	r.HandleFunc("/api/courses/sections/{term}/{course}", handlers.SectionHandler).Methods("GET")
+	r.HandleFunc("/api/courses", handlers.CourseHandler).Methods("GET")
 
-	http.Handle("/api/", http.StripPrefix("/api", apiMux))
-
-	log.Println("API running at :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.ListenAndServe(":8080", r)
 }

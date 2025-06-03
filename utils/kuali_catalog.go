@@ -1,12 +1,10 @@
-package handlers
+package utils
 
 import (
 	"course-api/constants"
 	"course-api/models"
-	"course-api/utils"
 	"encoding/json"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 )
@@ -23,47 +21,10 @@ var (
 )
 
 /*
-function CoursesHandler
-It expects the following query parameters:
-- course: The subject subject + number (e.g., "SENG499").
-*/
-func InfoHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	course := strings.ToUpper(r.URL.Query().Get("course"))
-
-	validParams := course != ""
-
-	if !validParams {
-		http.Error(w, "Invalid parameters", http.StatusBadRequest)
-		return
-	}
-
-	var courses []models.KualiCourse
-	courses, err := getCachedCourses()
-
-	if err != nil {
-		http.Error(w, "Failed to fetch courses", http.StatusInternalServerError)
-		return
-	}
-
-	foundCourse, err := models.GetCourseByDepartmentAndNumber(courses, course)
-	if err == nil {
-		utils.WriteSuccess(w, foundCourse)
-		return
-	}
-
-	utils.WriteError(w, "Course not found")
-}
-
-/*
-function getCachedCourses
+function getKualiCatalog
 Checks if the course catalog is cached and valid using a double-checked locking pattern
 */
-func getCachedCourses() ([]models.KualiCourse, error) {
+func GetKualiCatalog() ([]models.KualiCourse, error) {
 	catalog.mu.RLock()
 	// Check cache with read lock (Allows concurrent reads)
 	if time.Now().Before(catalog.expiration) && catalog.courses != nil {
@@ -94,6 +55,7 @@ func getCachedCourses() ([]models.KualiCourse, error) {
 		return nil, err
 	}
 
+	// Set the catalog cache
 	catalog.courses = courses
 	catalog.expiration = time.Now().Add(cacheDuration)
 	return courses, nil
