@@ -7,16 +7,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load()
-
-	if err != nil {
-		log.Println("No .env file found or error loading .env")
-	}
-
 	ginMode := os.Getenv("GIN_MODE")
 
 	if ginMode == "" {

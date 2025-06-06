@@ -1,6 +1,8 @@
 services:
   uvic-course-api:
     build: .
+    env_file: 
+      - .env
     restart: always
     ports:
       - "8080:8080"
