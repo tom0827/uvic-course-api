@@ -8,9 +8,9 @@ RUN go mod download
 # Copy the rest of the source code (including handler/)
 COPY . .
 
-RUN go build -o server main.go
+RUN go build main.go
 
 FROM alpine
 WORKDIR /app
-COPY --from=builder /app/server .
-CMD ["./server"]
+COPY --from=builder /app/main .
+CMD ["./main"]

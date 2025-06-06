@@ -2,21 +2,20 @@ package utils
 
 import (
 	"course-api/models"
-	"encoding/json"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-func WriteSuccess(w http.ResponseWriter, data interface{}) {
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(models.APIResponse{
+func WriteSuccess(c *gin.Context, data interface{}) {
+	c.JSON(http.StatusOK, models.APIResponse{
 		Status: "success",
 		Data:   data,
 	})
 }
 
-func WriteError(w http.ResponseWriter, message string) {
-	w.WriteHeader(http.StatusNotFound)
-	json.NewEncoder(w).Encode(models.APIResponse{
+func WriteError(c *gin.Context, message string) {
+	c.JSON(http.StatusInternalServerError, models.APIResponse{
 		Status:  "error",
 		Message: message,
 		Data:    nil,

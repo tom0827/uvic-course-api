@@ -9,18 +9,12 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
-/*
-function SectionHandler
-/api/courses/sections/{term}/{course}
-Fetches sections for a given course term, subject, and number from the Kuali API.
-*/
-func SectionHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	term := vars["term"]
-	course := vars["course"]
+func SectionHandler(c *gin.Context) {
+	term := c.Param("term")
+	course := c.Param("course")
 
 	subject, number := utils.SplitCourseCode(course)
 	cookieLink := fmt.Sprintf(constants.CookieUrl, term)
@@ -31,41 +25,41 @@ func SectionHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, err := client.Get(cookieLink)
 	if err != nil {
-		utils.WriteError(w, "Failed to fetch cookie")
+		utils.WriteError(c, "Failed to fetch cookie")
 		return
 	}
 
 	resp, err := client.Get(dataLink)
 	if err != nil {
-		utils.WriteError(w, "Failed to fetch sections")
+		utils.WriteError(c, "Failed to fetch sections")
 		return
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		utils.WriteError(w, "Failed to read response body")
+		utils.WriteError(c, "Failed to read response body")
 		return
 	}
 
 	var result map[string]interface{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		utils.WriteError(w, "Failed to decode JSON")
+		utils.WriteError(c, "Failed to decode JSON")
 		return
 	}
 
 	numOfSections, ok := result["sectionsFetchedCount"].(float64)
 
 	if !ok {
-		utils.WriteError(w, "Invalid sections count in response")
+		utils.WriteError(c, "Invalid sections count in response")
 		return
 	}
 
 	if int(numOfSections) == 0 {
-		utils.WriteSuccess(w, []map[string]any{})
+		utils.WriteSuccess(c, []map[string]any{})
 		return
 	}
 
-	utils.WriteSuccess(w, result)
+	utils.WriteSuccess(c, result)
 }

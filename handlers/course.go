@@ -3,32 +3,20 @@ package handlers
 import (
 	"course-api/models"
 	"course-api/utils"
-	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
-/*
-function CoursesHandler
-/api/courses
-Returns all courses in catalog or matching a course name
-Returns a paginated list of courses
-Query parameters:
-- search: string, optional, search term to filter courses by name
-- page: int, optional, page number for pagination (default is 1)
-- pageSize: int, optional, number of courses per page (default is 20)
-Maximum page size is 100
-*/
-func CourseHandler(w http.ResponseWriter, r *http.Request) {
-	// Maximum page size limit
+func CourseHandler(c *gin.Context) {
 	const MaxPageSize = 100
-	// Default pagination values
-	page := 1
-	pageSize := 20
+	page := 1      //Default
+	pageSize := 20 //Default
 
-	search := strings.ToUpper(r.URL.Query().Get("search"))
-	pageStr := r.URL.Query().Get("page")
-	pageSizeStr := r.URL.Query().Get("pageSize")
+	search := strings.ToUpper(c.Query("search"))
+	pageStr := c.Query("search")
+	pageSizeStr := c.Query("search")
 
 	if pageStr != "" {
 		pageTemp, err := strconv.Atoi(pageStr)
@@ -45,18 +33,18 @@ func CourseHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if pageSize > MaxPageSize {
-		pageSize = MaxPageSize // Limit page size to a maximum of 100
+		pageSize = MaxPageSize
 	}
 
 	var courses []models.KualiCourse
 	courses, err := utils.GetKualiCatalog()
 
 	if err != nil {
-		http.Error(w, "Failed to fetch courses", http.StatusInternalServerError)
+		utils.WriteError(c, "Failed to fetch courses from Kuali catalog")
 		return
 	}
 
-	matches := models.SearchKualiCatalog(courses, search)
+	matches := utils.SearchKualiCatalog(courses, search)
 	total := len(matches)
 
 	// Pagination logic
@@ -70,7 +58,7 @@ func CourseHandler(w http.ResponseWriter, r *http.Request) {
 		paginatedMatches = []models.KualiCourseSummary{}
 	}
 
-	utils.WriteSuccess(w, map[string]interface{}{
+	utils.WriteSuccess(c, map[string]interface{}{
 		"courses":    paginatedMatches,
 		"count":      len(paginatedMatches),
 		"totalCount": total,

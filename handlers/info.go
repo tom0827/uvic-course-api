@@ -1,27 +1,19 @@
 package handlers
 
 import (
-	"course-api/models"
 	"course-api/utils"
-	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
-/*
-function CoursesHandler
-/api/courses/info/{course-name}
-Finds corresponding course name in the Kuali catalog and returns it as a JSON response
-*/
-func InfoHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	pid := vars["pid"]
+func InfoHandler(c *gin.Context) {
+	pid := c.Param("pid")
 
-	courseInfo, err := models.GetKualiCourseInfo(pid)
+	courseInfo, err := utils.GetKualiCourseInfo(pid)
 	if err != nil {
-		utils.WriteError(w, "Course not found")
+		utils.WriteError(c, "Course not found")
 		return
 	}
 
-	utils.WriteSuccess(w, courseInfo)
+	utils.WriteSuccess(c, courseInfo)
 }

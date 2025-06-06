@@ -4,7 +4,9 @@ import (
 	"course-api/constants"
 	"course-api/models"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 )
@@ -20,10 +22,6 @@ var (
 	catalog       = &catalogCache{}
 )
 
-/*
-function getKualiCatalog
-Checks if the course catalog is cached and valid using a double-checked locking pattern
-*/
 func GetKualiCatalog() ([]models.KualiCourse, error) {
 	catalog.mu.RLock()
 	// Check cache with read lock (Allows concurrent reads)
@@ -59,4 +57,39 @@ func GetKualiCatalog() ([]models.KualiCourse, error) {
 	catalog.courses = courses
 	catalog.expiration = time.Now().Add(cacheDuration)
 	return courses, nil
+}
+
+func GetKualiCourseInfo(pid string) (*models.KualiCourseInfo, error) {
+	var courseInfo models.KualiCourseInfo
+	resp, err := http.Get(fmt.Sprintf(constants.InformationUrl, pid))
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch course info: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch course info: status %d", resp.StatusCode)
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&courseInfo)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode course info: %w", err)
+	}
+
+	return &courseInfo, nil
+}
+
+func SearchKualiCatalog(courses []models.KualiCourse, search string) []models.KualiCourseSummary {
+	var matches []models.KualiCourseSummary
+	for _, course := range courses {
+		if search == "" || strings.HasPrefix(course.CatalogCourseId, search) {
+			matches = append(matches, models.KualiCourseSummary{
+				CatalogCourseId: course.CatalogCourseId,
+				Pid:             course.Pid,
+				Title:           course.Title,
+			})
+		}
+	}
+	return matches
 }
