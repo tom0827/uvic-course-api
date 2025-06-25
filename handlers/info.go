@@ -7,9 +7,15 @@ import (
 )
 
 func InfoHandler(c *gin.Context) {
-	pid := c.Param("pid")
+	pid := c.Query("pid")
+	course := c.Query("course")
 
-	courseInfo, err := utils.GetKualiCourseInfo(pid)
+	if pid == "" && course == "" {
+		c.JSON(400, gin.H{"error": "Either pid or course must be provided"})
+		return
+	}
+
+	courseInfo, err := utils.GetKualiCourseInfo(pid, course)
 	if err != nil {
 		utils.WriteError(c, "Course not found")
 		return
