@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"course-api/utils"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 func InfoHandler(c *gin.Context) {
-	pid := c.Query("pid")
-	course := c.Query("course")
+	pid := strings.ToUpper(c.Query("pid"))
+	course := strings.ToUpper(c.Query("course"))
 
 	if pid == "" && course == "" {
 		c.JSON(400, gin.H{"error": "Either pid or course must be provided"})
