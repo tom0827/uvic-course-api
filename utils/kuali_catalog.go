@@ -59,7 +59,28 @@ func GetKualiCatalog() ([]models.KualiCourse, error) {
 	return courses, nil
 }
 
-func GetKualiCourseInfo(pid string) (*models.KualiCourseInfo, error) {
+func GetKualiCourseInfo(pid string, course string) (*models.KualiCourseInfo, error) {
+
+	if pid == "" {
+		var courses []models.KualiCourse
+		courses, err := GetKualiCatalog()
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch Kuali catalog: %w", err)
+		}
+
+		matches := SearchKualiCatalog(courses, course)
+		if len(matches) == 1 {
+			fmt.Printf("First match: %+v\n", matches[0])
+			fmt.Printf("PID: %s\n", matches[0].Pid)
+			pid = matches[0].Pid
+		} else if len(matches) == 0 {
+			return nil, fmt.Errorf("no course found with the given course ID")
+		} else {
+			return nil, fmt.Errorf("multiple courses found with the given course ID, please specify a PID")
+		}
+	}
+
 	var courseInfo models.KualiCourseInfo
 	resp, err := http.Get(fmt.Sprintf(constants.InformationUrl, pid))
 
