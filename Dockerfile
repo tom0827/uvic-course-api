@@ -12,7 +12,7 @@ WORKDIR /app
 RUN apk add --no-cache openssl
 
 COPY --from=builder /app/main .
-COPY crons/fetch_server_cert.sh .
+COPY scripts/fetch_server_cert.sh .
 COPY entrypoint.sh .
 
 RUN chmod +x fetch_server_cert.sh entrypoint.sh

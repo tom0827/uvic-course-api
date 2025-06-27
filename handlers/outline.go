@@ -17,7 +17,15 @@ import (
 
 func OutlineHandler(c *gin.Context) {
 	term, course := c.Param("term"), strings.ToUpper(c.Param("course"))
+	unpublished := strings.ToLower(c.Query("unpublished")) == "true"
+
+	fmt.Println("Received request for outline:", term, course, "Unpublished:", unpublished)
+
 	outline_link := fmt.Sprintf(constants.OutlineUrl, term, course)
+
+	if unpublished {
+		outline_link = fmt.Sprintf("%s?unpt=t", outline_link)
+	}
 
 	roots, err := x509.SystemCertPool()
 
