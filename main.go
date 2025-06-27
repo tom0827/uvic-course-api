@@ -38,6 +38,7 @@ func main() {
 	r.GET("/api/courses/info", handlers.InfoHandler)
 	r.GET("/api/courses/sections/:term/:course", handlers.SectionHandler)
 	r.GET("/api/courses", handlers.CourseHandler)
+	r.GET("/api/outline/:term/:course", handlers.OutlineHandler)
 
 	r.Run(":8080")
 }
