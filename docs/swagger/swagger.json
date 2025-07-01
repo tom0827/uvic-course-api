@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "https://coursesystem.app",
+    "host": "coursesystem.app",
     "basePath": "/api",
     "paths": {
         "/courses": {
