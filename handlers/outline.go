@@ -15,6 +15,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// OutlineHandler godoc
+// @Summary Get course outline
+// @Description Get the outline for a specific course in a specific term
+// @Tags courses
+// @Accept json
+// @Produce json
+// @Param term path string true "Term ID"
+// @Param course path string true "Course ID"
+// @Param unpublished query boolean false "Include unpublished outlines if true" default(false)
+// @Success 200 {object} object{link=string,isValid=boolean} "Successful response with outline link and validity"
+// @Failure 500 {object} object{error=string} "Server error when fetching outline"
+// @Router /outline/{term}/{course} [get]
 func OutlineHandler(c *gin.Context) {
 	term, course := c.Param("term"), strings.ToUpper(c.Param("course"))
 	unpublished := strings.ToLower(c.Query("unpublished")) == "true"
@@ -60,6 +72,7 @@ func OutlineHandler(c *gin.Context) {
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
+
 	if err != nil {
 		utils.WriteError(c, fmt.Sprintf("Failed to read response body: %v", err))
 		return

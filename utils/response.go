@@ -21,3 +21,11 @@ func WriteError(c *gin.Context, message string) {
 		Data:    nil,
 	})
 }
+
+func WriteNotFound(c *gin.Context, message string) {
+	c.JSON(http.StatusNotFound, models.APIResponse{
+		Status:  "Not Found",
+		Message: message,
+		Data:    nil,
+	})
+}

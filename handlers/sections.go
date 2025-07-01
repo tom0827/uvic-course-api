@@ -12,6 +12,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// SectionHandler godoc
+// @Summary Get course sections
+// @Description Get sections for a specific course in a specific term
+// @Tags courses
+// @Accept json
+// @Produce json
+// @Param term path string true "Term ID (e.g., 202101)"
+// @Param course path string true "Course ID (e.g., CSC110)"
+// @Success 200 {object} object "Successful response with sections data or empty array if no sections found"
+// @Failure 500 {object} object{error=string} "Error when failing to fetch cookie, sections, read response, or parse JSON"
+// @Failure 500 {object} object{error=string} "Error when sections count is invalid"
+// @Router /courses/sections/{term}/{course} [get]
 func SectionHandler(c *gin.Context) {
 	term := c.Param("term")
 	course := c.Param("course")
@@ -24,12 +36,14 @@ func SectionHandler(c *gin.Context) {
 	client := &http.Client{Jar: jar}
 
 	_, err := client.Get(cookieLink)
+
 	if err != nil {
 		utils.WriteError(c, "Failed to fetch cookie")
 		return
 	}
 
 	resp, err := client.Get(dataLink)
+
 	if err != nil {
 		utils.WriteError(c, "Failed to fetch sections")
 		return
@@ -37,6 +51,7 @@ func SectionHandler(c *gin.Context) {
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
+
 	if err != nil {
 		utils.WriteError(c, "Failed to read response body")
 		return
@@ -44,6 +59,7 @@ func SectionHandler(c *gin.Context) {
 
 	var result map[string]interface{}
 	err = json.Unmarshal(body, &result)
+
 	if err != nil {
 		utils.WriteError(c, "Failed to decode JSON")
 		return

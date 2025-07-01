@@ -6,9 +6,18 @@ import (
 	"os"
 	"strings"
 
+	_ "course-api/docs" // Import generated docs
+
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title Course API
+// @version 1.0
+// @description API for accessing course information
+// @host localhost:8080
+// @BasePath /api
 func main() {
 	ginMode := os.Getenv("GIN_MODE")
 
@@ -39,6 +48,8 @@ func main() {
 	r.GET("/api/courses/sections/:term/:course", handlers.SectionHandler)
 	r.GET("/api/courses", handlers.CourseHandler)
 	r.GET("/api/outline/:term/:course", handlers.OutlineHandler)
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.Run(":8080")
 }

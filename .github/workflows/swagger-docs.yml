@@ -1,0 +1,43 @@
+name: Generate Swagger Docs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate-swagger:
+    if: "!contains(github.event.head_commit.author.name, 'github-actions')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '^1.20'
+          
+      - name: Install swag
+        run: go install github.com/swaggo/swag/cmd/swag@latest
+          
+      - name: Generate Swagger documentation
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          swag init -g ./main.go -o ./docs/swagger
+          
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --exit-code --quiet docs/swagger || echo "changes=true" >> $GITHUB_OUTPUT
+          
+      - name: Commit changes
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add docs/swagger
+          git commit -m "chore: update Swagger documentation"
+          git push
