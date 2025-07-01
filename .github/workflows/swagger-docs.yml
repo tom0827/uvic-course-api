@@ -26,7 +26,7 @@ jobs:
       - name: Generate Swagger documentation
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
-          swag init -g ./main.go -o ./docs/swagger
+          swag init
           
       - name: Check for changes
         id: check_changes
