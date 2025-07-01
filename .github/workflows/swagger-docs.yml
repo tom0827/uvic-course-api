@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+# This workflow requires permission to push changes to the repository.
+permissions:
+  contents: write
+
 jobs:
   generate-swagger:
     if: "!contains(github.event.head_commit.author.name, 'github-actions')"
