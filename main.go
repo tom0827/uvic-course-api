@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	_ "course-api/docs" // Import generated docs
+	_ "course-api/docs/swagger" // Import generated docs
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
