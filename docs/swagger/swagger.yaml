@@ -1,5 +1,5 @@
 basePath: /api
-host: localhost:8080
+host: https://coursesystem.app
 info:
   contact: {}
   description: API for accessing course information
