@@ -1,16 +1,11 @@
 name: Deploy
 
 on:
-  # Trigger 1: Run after Swagger workflow completes
+  # Run after Swagger workflow completes
   workflow_run:
-    workflows: ["Generate Swagger Docs"]  # Replace with the exact name of your Swagger workflow
+    workflows: ["Generate Swagger Docs"]
     types:
       - completed
-    branches:
-      - main
-
-  # Trigger 2: Run directly on push to main if Swagger workflow isn't involved
-  push:
     branches:
       - main
 
