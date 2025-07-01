@@ -16,7 +16,7 @@ import (
 // @title Course API
 // @version 1.0
 // @description API for accessing course information
-// @host https://coursesystem.app
+// @host coursesystem.app
 // @BasePath /api
 func main() {
 	ginMode := os.Getenv("GIN_MODE")
