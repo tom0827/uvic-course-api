@@ -13,6 +13,22 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// CORS middleware
+func corsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET")
+		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
+}
+
 // @title Course API
 // @version 1.0
 // @description API for accessing course information
@@ -29,6 +45,7 @@ func main() {
 
 	r := gin.New()
 	r.Use(gin.Logger())
+	r.Use(corsMiddleware()) // Add CORS middleware
 
 	trustedProxies := os.Getenv("TRUSTED_PROXIES")
 	if trustedProxies == "" {

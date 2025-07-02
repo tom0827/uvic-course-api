@@ -18,8 +18,8 @@ import (
 // @Tags courses
 // @Accept json
 // @Produce json
-// @Param term path string true "Term ID (e.g., 202101)"
-// @Param course path string true "Course ID (e.g., CSC110)"
+// @Param term path string true "Term ID (e.g., 202505)"
+// @Param course path string true "Course ID (e.g., SENG499)"
 // @Success 200 {object} object "Successful response with sections data or empty array if no sections found"
 // @Failure 500 {object} object{error=string} "Error when failing to fetch cookie, sections, read response, or parse JSON"
 // @Failure 500 {object} object{error=string} "Error when sections count is invalid"
