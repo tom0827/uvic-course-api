@@ -1,6 +1,8 @@
 package constants
 
-// The Kuali catalog URL must be manually updated. This one is up to date as of 2025 June 2
+// The Kuali catalog URL must be manually updated. This one is up to date as of 2025 November 28th.
+// To update go to https://www.uvic.ca/calendar/undergrad/#/courses/Hk_57dp7E?q=ENGR110&&limit=20&skip=0&bc=true&bcCurrent=&bcCurrent=Design%20and%20Communication%20I&bcItemType=courses
+// and inspect element, look for kuali links to get the latest catalog URL.
 const CatalogUrl string = "https://uvic.kuali.co/api/v1/catalog/courses/68923109c72beab1a99e4c73"
 
 // Kuali URL to get course information
