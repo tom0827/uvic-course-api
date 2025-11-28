@@ -92,12 +92,12 @@ paths:
       - application/json
       description: Get sections for a specific course in a specific term
       parameters:
-      - description: Term ID (e.g., 202101)
+      - description: Term ID (e.g., 202505)
         in: path
         name: term
         required: true
         type: string
-      - description: Course ID (e.g., CSC110)
+      - description: Course ID (e.g., SENG499)
         in: path
         name: course
         required: true

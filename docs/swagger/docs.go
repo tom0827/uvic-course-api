@@ -151,14 +151,14 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Term ID (e.g., 202101)",
+                        "description": "Term ID (e.g., 202505)",
                         "name": "term",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Course ID (e.g., CSC110)",
+                        "description": "Course ID (e.g., SENG499)",
                         "name": "course",
                         "in": "path",
                         "required": true
