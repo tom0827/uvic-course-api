@@ -61,10 +61,9 @@ func main() {
 		}
 	}
 
-	r.GET("/api/courses/info", handlers.InfoHandler)
-	r.GET("/api/courses/sections/:term/:course", handlers.SectionHandler)
+	r.GET("/api/info", handlers.CourseInfoHandler)
+	r.GET("/api/sections", handlers.SectionHandler)
 	r.GET("/api/courses", handlers.CourseHandler)
-	r.GET("/api/outline/:term/:course", handlers.OutlineHandler)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

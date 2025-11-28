@@ -18,7 +18,7 @@ type catalogCache struct {
 }
 
 var (
-	cacheDuration = 30 * time.Minute
+	cacheDuration = 60 * time.Minute
 	catalog       = &catalogCache{}
 )
 
@@ -60,7 +60,6 @@ func GetKualiCatalog() ([]models.KualiCourse, error) {
 }
 
 func GetKualiCourseInfo(pid string, course string) (*models.KualiCourseInfo, error) {
-
 	if pid == "" {
 		var courses []models.KualiCourse
 		courses, err := GetKualiCatalog()
@@ -101,6 +100,7 @@ func GetKualiCourseInfo(pid string, course string) (*models.KualiCourseInfo, err
 	return &courseInfo, nil
 }
 
+// TODO: Optimize to exit search if we only need one result
 func SearchKualiCatalog(courses []models.KualiCourse, search string) []models.KualiCourseSummary {
 	var matches []models.KualiCourseSummary
 	for _, course := range courses {

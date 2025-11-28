@@ -22,13 +22,13 @@ import (
 // @Failure 500 {object} object{error=string} "Course not found"
 // @Router /courses [get]
 func CourseHandler(c *gin.Context) {
-	const MaxPageSize = 100
+	const MaxPageLimit = 100
 	page := 1      //Default
 	pageSize := 20 //Default
 
 	search := strings.ToUpper(c.Query("search"))
-	pageStr := c.Query("search")
-	pageSizeStr := c.Query("search")
+	pageStr := c.Query("page")
+	pageLimitStr := c.Query("limit")
 
 	if pageStr != "" {
 		pageTemp, err := strconv.Atoi(pageStr)
@@ -37,15 +37,15 @@ func CourseHandler(c *gin.Context) {
 		}
 	}
 
-	if pageSizeStr != "" {
-		pageSizeTemp, err := strconv.Atoi(pageSizeStr)
-		if err == nil && pageSizeTemp > 0 {
-			pageSize = pageSizeTemp
+	if pageLimitStr != "" {
+		pageLimitTemp, err := strconv.Atoi(pageLimitStr)
+		if err == nil && pageLimitTemp > 0 {
+			pageSize = pageLimitTemp
 		}
 	}
 
-	if pageSize > MaxPageSize {
-		pageSize = MaxPageSize
+	if pageSize > MaxPageLimit {
+		pageSize = MaxPageLimit
 	}
 
 	var courses []models.KualiCourse

@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/cookiejar"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,8 +26,8 @@ import (
 // @Failure 500 {object} object{error=string} "Error when sections count is invalid"
 // @Router /courses/sections/{term}/{course} [get]
 func SectionHandler(c *gin.Context) {
-	term := c.Param("term")
-	course := c.Param("course")
+	term := strings.ToUpper(c.Query("term"))
+	course := strings.ToUpper(c.Query("course"))
 
 	subject, number := utils.SplitCourseCode(course)
 	cookieLink := fmt.Sprintf(constants.CookieUrl, term)

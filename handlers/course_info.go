@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// InfoHandler godoc
+// CourseInfoHandler godoc
 // @Summary Get course information
 // @Description Get general information about available courses
 // @Tags courses
@@ -19,8 +19,8 @@ import (
 // @Failure 500 {object} object{error=string} "Error when neither pid nor course is provided"
 // @Failure 404 {object} object{error=string} "Course not found"
 // @Router /courses/info [get]
-func InfoHandler(c *gin.Context) {
-	pid := strings.ToUpper(c.Query("pid"))
+func CourseInfoHandler(c *gin.Context) {
+	pid := c.Query("pid")
 	course := strings.ToUpper(c.Query("course"))
 
 	if pid == "" && course == "" {
@@ -31,7 +31,11 @@ func InfoHandler(c *gin.Context) {
 	courseInfo, err := utils.GetKualiCourseInfo(pid, course)
 
 	if err != nil {
-		utils.WriteNotFound(c, "Course not found")
+		if pid != "" {
+			utils.WriteNotFound(c, "Course not found with pid: "+pid)
+		} else {
+			utils.WriteNotFound(c, "Course not found with course: "+course)
+		}
 		return
 	}
 
