@@ -29,6 +29,11 @@ func SectionHandler(c *gin.Context) {
 	term := strings.ToUpper(c.Query("term"))
 	course := strings.ToUpper(c.Query("course"))
 
+	if term == "" || course == "" {
+		utils.WriteError(c, "Please provide both term and course")
+		return
+	}
+
 	subject, number := utils.SplitCourseCode(course)
 	cookieLink := fmt.Sprintf(constants.CookieUrl, term)
 	dataLink := fmt.Sprintf(constants.SectionsUrl, term, subject, number)
