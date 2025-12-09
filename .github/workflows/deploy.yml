@@ -38,7 +38,7 @@ jobs:
         echo "$SSH_PRIVATE_KEY" > ssh_key
         chmod 600 ssh_key
 
-        scp -i ssh_key -o StrictHostKeyChecking=no docker-compose.yml $VPS_USER@$VPS_HOST:/home/ubuntu/course-api/docker-compose.yml
+        scp -i ssh_key -o StrictHostKeyChecking=no docker-compose.prod.yml $VPS_USER@$VPS_HOST:/home/ubuntu/course-api/docker-compose.yml
 
         ssh -i ssh_key -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << EOF
         cd /home/ubuntu/course-api
