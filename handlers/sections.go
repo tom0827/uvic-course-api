@@ -2,13 +2,16 @@ package handlers
 
 import (
 	"course-api/constants"
+	"course-api/redis"
 	"course-api/utils"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,8 +22,8 @@ import (
 // @Tags courses
 // @Accept json
 // @Produce json
-// @Param term path string true "Term ID (e.g., 202505)"
-// @Param course path string true "Course ID (e.g., SENG499)"
+// @Param term query string true "Term ID (e.g., 202505)"
+// @Param course query string true "Course ID (e.g., SENG499)"
 // @Success 200 {object} object "Successful response with sections data or empty array if no sections found"
 // @Failure 500 {object} object{error=string} "Error when failing to fetch cookie, sections, read response, or parse JSON"
 // @Failure 500 {object} object{error=string} "Error when sections count is invalid"
@@ -34,6 +37,19 @@ func SectionHandler(c *gin.Context) {
 		return
 	}
 
+	// Redis cache key
+	cacheKey := fmt.Sprintf("sections:%s:%s", term, course)
+	cached, err := redis.Get(cacheKey)
+	if err == nil && cached != "" {
+		log.Printf("CACHE HIT: Sections for %s %s", term, course)
+		var result map[string]interface{}
+		if err := json.Unmarshal([]byte(cached), &result); err == nil {
+			utils.WriteSuccess(c, result)
+			return
+		}
+	}
+
+	log.Printf("CACHE MISS: Sections for %s %s", term, course)
 	subject, number := utils.SplitCourseCode(course)
 	cookieLink := fmt.Sprintf(constants.CookieUrl, term)
 	dataLink := fmt.Sprintf(constants.SectionsUrl, term, subject, number)
@@ -41,15 +57,13 @@ func SectionHandler(c *gin.Context) {
 	jar, _ := cookiejar.New(nil)
 	client := &http.Client{Jar: jar}
 
-	_, err := client.Get(cookieLink)
-
+	_, err = client.Get(cookieLink)
 	if err != nil {
 		utils.WriteError(c, "Failed to fetch cookie")
 		return
 	}
 
 	resp, err := client.Get(dataLink)
-
 	if err != nil {
 		utils.WriteError(c, "Failed to fetch sections")
 		return
@@ -57,7 +71,6 @@ func SectionHandler(c *gin.Context) {
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
-
 	if err != nil {
 		utils.WriteError(c, "Failed to read response body")
 		return
@@ -65,14 +78,12 @@ func SectionHandler(c *gin.Context) {
 
 	var result map[string]interface{}
 	err = json.Unmarshal(body, &result)
-
 	if err != nil {
 		utils.WriteError(c, "Failed to decode JSON")
 		return
 	}
 
 	numOfSections, ok := result["sectionsFetchedCount"].(float64)
-
 	if !ok {
 		utils.WriteError(c, "Invalid sections count in response")
 		return
@@ -80,8 +91,14 @@ func SectionHandler(c *gin.Context) {
 
 	if int(numOfSections) == 0 {
 		utils.WriteSuccess(c, []map[string]any{})
+		// Cache empty result for short time
+		data, _ := json.Marshal([]map[string]any{})
+		_ = redis.Set(cacheKey, string(data), 10*time.Minute)
 		return
 	}
 
+	// Cache result
+	data, _ := json.Marshal(result)
+	_ = redis.Set(cacheKey, string(data), 60*time.Minute)
 	utils.WriteSuccess(c, result)
 }

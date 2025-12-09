@@ -8,9 +8,9 @@ import (
 
 	_ "course-api/docs/swagger" // Import generated docs
 
+	"course-api/redis"
+
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // CORS middleware
@@ -24,28 +24,23 @@ func corsMiddleware() gin.HandlerFunc {
 			c.AbortWithStatus(204)
 			return
 		}
-
 		c.Next()
 	}
 }
 
-// @title Course API
-// @version 1.0
-// @description API for accessing course information
-// @host coursesystem.app
-// @BasePath /api
 func main() {
+	// Health check endpoint
 	ginMode := os.Getenv("GIN_MODE")
 
 	if ginMode == "" {
 		ginMode = "debug" // Default to debug mode if not set
 	}
-
 	gin.SetMode(ginMode)
 
+	redis.InitRedis()
 	r := gin.New()
 	r.Use(gin.Logger())
-	r.Use(corsMiddleware()) // Add CORS middleware
+	r.Use(corsMiddleware())
 
 	trustedProxies := os.Getenv("TRUSTED_PROXIES")
 	if trustedProxies == "" {
@@ -60,12 +55,18 @@ func main() {
 			log.Fatal(err)
 		}
 	}
+	r.GET("/api/v1/health", handlers.HealthCheckHandler)
 
-	r.GET("/api/info", handlers.CourseInfoHandler)
-	r.GET("/api/sections", handlers.SectionHandler)
-	r.GET("/api/courses", handlers.CourseHandler)
+	r.GET("/api/v1/info", handlers.CourseInfoHandler)
+	r.GET("/api/v1/sections", handlers.SectionHandler)
+	r.GET("/api/v1/courses", handlers.CourseHandler)
 
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// In main.go, only add this route if in debug mode:
+	if os.Getenv("GIN_MODE") == "debug" {
+		r.GET("/api/v1/redis-stats", handlers.RedisStatsHandler)
+	}
+
+	// r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler)) TODO add back in swagger docs later
 
 	r.Run(":8080")
 }

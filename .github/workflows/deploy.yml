@@ -1,11 +1,7 @@
 name: Deploy
 
 on:
-  # Run after Swagger workflow completes
-  workflow_run:
-    workflows: ["Generate Swagger Docs"]
-    types:
-      - completed
+  push:
     branches:
       - main
 
@@ -33,7 +29,7 @@ jobs:
         docker build -t ${{ secrets.DOCKER_USERNAME }}/uvic-course-api:latest .
         docker push ${{ secrets.DOCKER_USERNAME }}/uvic-course-api:latest
 
-    - name: SSH into server and start container
+    - name: SSH into server and deploy with docker-compose
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         VPS_HOST: ${{ secrets.VPS_HOST }}
@@ -42,12 +38,11 @@ jobs:
         echo "$SSH_PRIVATE_KEY" > ssh_key
         chmod 600 ssh_key
 
+        scp -i ssh_key -o StrictHostKeyChecking=no docker-compose.yml $VPS_USER@$VPS_HOST:/home/ubuntu/course-api/docker-compose.yml
+
         ssh -i ssh_key -o StrictHostKeyChecking=no $VPS_USER@$VPS_HOST << EOF
+        cd /home/ubuntu/course-api
         sudo docker pull ${{ secrets.DOCKER_USERNAME }}/uvic-course-api:latest
-        sudo docker stop uvic-course-api || true
-        sudo docker rm uvic-course-api || true
-        sudo docker run --env-file /home/ubuntu/course-api/.env -d \
-          --name uvic-course-api \
-          --restart always \
-          -p 8080:8080 \
-          ${{ secrets.DOCKER_USERNAME }}/uvic-course-api:latest
+        sudo docker-compose down
+        sudo docker-compose up -d --build
+        EOF

@@ -3,44 +3,33 @@ package utils
 import (
 	"course-api/constants"
 	"course-api/models"
+	"course-api/redis"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 )
 
-type catalogCache struct {
-	courses    []models.KualiCourse
-	expiration time.Time
-	mu         sync.RWMutex
-}
-
 var (
-	cacheDuration = 60 * time.Minute
-	catalog       = &catalogCache{}
+	cacheDuration   = 60 * time.Minute
+	redisCatalogKey = "kuali_catalog"
 )
 
 func GetKualiCatalog() ([]models.KualiCourse, error) {
-	catalog.mu.RLock()
-	// Check cache with read lock (Allows concurrent reads)
-	if time.Now().Before(catalog.expiration) && catalog.courses != nil {
-		defer catalog.mu.RUnlock()
-		return catalog.courses, nil
+
+	// Try Redis cache first
+	cached, err := redis.Get(redisCatalogKey)
+	if err == nil && cached != "" {
+		log.Printf("CACHE HIT: Kuali Catalog")
+		var courses []models.KualiCourse
+		if err := json.Unmarshal([]byte(cached), &courses); err == nil {
+			return courses, nil
+		}
 	}
-	catalog.mu.RUnlock()
-
-	catalog.mu.Lock()
-	defer catalog.mu.Unlock() // Defer unlocking until the function exits. Guarantees that the lock is released even if an error occurs.
-
-	// Re-check the cache with write lock (Does not allow concurrent reads)
-	if time.Now().Before(catalog.expiration) && catalog.courses != nil {
-		return catalog.courses, nil
-	}
-
+	log.Printf("CACHE MISS: Kuali Catalog")
 	// Cache miss, fetch catalog from the URL
-
 	resp, err := http.Get(constants.CatalogUrl)
 	if err != nil {
 		return nil, err
@@ -53,9 +42,9 @@ func GetKualiCatalog() ([]models.KualiCourse, error) {
 		return nil, err
 	}
 
-	// Set the catalog cache
-	catalog.courses = courses
-	catalog.expiration = time.Now().Add(cacheDuration)
+	// Set Redis cache
+	data, _ := json.Marshal(courses)
+	_ = redis.Set(redisCatalogKey, string(data), cacheDuration)
 	return courses, nil
 }
 
@@ -70,8 +59,6 @@ func GetKualiCourseInfo(pid string, course string) (*models.KualiCourseInfo, err
 
 		matches := SearchKualiCatalog(courses, course)
 		if len(matches) == 1 {
-			fmt.Printf("First match: %+v\n", matches[0])
-			fmt.Printf("PID: %s\n", matches[0].Pid)
 			pid = matches[0].Pid
 		} else if len(matches) == 0 {
 			return nil, fmt.Errorf("no course found with the given course ID")
@@ -80,9 +67,20 @@ func GetKualiCourseInfo(pid string, course string) (*models.KualiCourseInfo, err
 		}
 	}
 
+	// Redis cache key
+	cacheKey := fmt.Sprintf("courseinfo:%s", pid)
+	cached, err := redis.Get(cacheKey)
+	if err == nil && cached != "" {
+		log.Printf("CACHE HIT: Course Info for PID %s", pid)
+		var courseInfo models.KualiCourseInfo
+		if err := json.Unmarshal([]byte(cached), &courseInfo); err == nil {
+			return &courseInfo, nil
+		}
+	}
+
+	log.Printf("CACHE MISS: Course Info for PID %s", pid)
 	var courseInfo models.KualiCourseInfo
 	resp, err := http.Get(fmt.Sprintf(constants.InformationUrl, pid))
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch course info: %w", err)
 	}
@@ -97,6 +95,9 @@ func GetKualiCourseInfo(pid string, course string) (*models.KualiCourseInfo, err
 		return nil, fmt.Errorf("failed to decode course info: %w", err)
 	}
 
+	// Cache result
+	data, _ := json.Marshal(courseInfo)
+	_ = redis.Set(cacheKey, string(data), 60*time.Minute)
 	return &courseInfo, nil
 }
 
