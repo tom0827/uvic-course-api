@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"course-api/models"
+	"course-api/src/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"course-api/redis"
+	"course-api/src/redis"
 
 	"github.com/gin-gonic/gin"
 )

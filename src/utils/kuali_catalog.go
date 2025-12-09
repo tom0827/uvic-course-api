@@ -1,14 +1,15 @@
 package utils
 
 import (
-	"course-api/constants"
-	"course-api/models"
-	"course-api/redis"
+	"course-api/src/constants"
+	"course-api/src/models"
+	"course-api/src/redis"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 const redisCatalogKey = "kuali_catalog"
@@ -40,7 +41,7 @@ func GetKualiCatalog() ([]models.KualiCourse, error) {
 
 	// Set Redis cache
 	data, _ := json.Marshal(courses)
-	_ = redis.Set(redisCatalogKey, string(data), constants.CacheDuration)
+	_ = redis.Set(redisCatalogKey, string(data), time.Hour)
 	return courses, nil
 }
 
@@ -93,7 +94,7 @@ func GetKualiCourseInfo(pid string, course string) (*models.KualiCourseInfo, err
 
 	// Cache result
 	data, _ := json.Marshal(courseInfo)
-	_ = redis.Set(cacheKey, string(data), constants.CacheDuration)
+	_ = redis.Set(cacheKey, string(data), time.Hour)
 	return &courseInfo, nil
 }
 

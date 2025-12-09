@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"course-api/constants"
-	"course-api/redis"
-	"course-api/utils"
+	"course-api/src/constants"
+	"course-api/src/redis"
+	"course-api/src/utils"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,22 +11,11 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-// SectionHandler godoc
-// @Summary Get course sections
-// @Description Get sections for a specific course in a specific term
-// @Tags courses
-// @Accept json
-// @Produce json
-// @Param term query string true "Term ID (e.g., 202505)"
-// @Param course query string true "Course ID (e.g., SENG499)"
-// @Success 200 {object} object "Successful response with sections data or empty array if no sections found"
-// @Failure 500 {object} object{error=string} "Error when failing to fetch cookie, sections, read response, or parse JSON"
-// @Failure 500 {object} object{error=string} "Error when sections count is invalid"
-// @Router /courses/sections/{term}/{course} [get]
 func SectionHandler(c *gin.Context) {
 	term := strings.ToUpper(c.Query("term"))
 	course := strings.ToUpper(c.Query("course"))
@@ -36,7 +25,6 @@ func SectionHandler(c *gin.Context) {
 		return
 	}
 
-	// Redis cache key
 	cacheKey := fmt.Sprintf("sections:%s:%s", term, course)
 	cached, err := redis.Get(cacheKey)
 	if err == nil && cached != "" {
@@ -95,12 +83,12 @@ func SectionHandler(c *gin.Context) {
 		}
 		utils.WriteSuccess(c, result)
 		data, _ := json.Marshal(result)
-		_ = redis.Set(cacheKey, string(data), constants.CacheDuration)
+		_ = redis.Set(cacheKey, string(data), 24*time.Hour)
 		return
 	}
 
 	// Cache result
 	data, _ := json.Marshal(result)
-	_ = redis.Set(cacheKey, string(data), constants.CacheDuration)
+	_ = redis.Set(cacheKey, string(data), time.Hour)
 	utils.WriteSuccess(c, result)
 }
