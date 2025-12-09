@@ -153,14 +153,14 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Term ID (e.g., 202505)",
                         "name": "term",
-                        "in": "path",
+                        "in": "query",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "Course ID (e.g., SENG499)",
                         "name": "course",
-                        "in": "path",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -190,12 +190,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
-	Host:             "coursesystem.app",
-	BasePath:         "/api",
+	Version:          "",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Course API",
-	Description:      "API for accessing course information",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
