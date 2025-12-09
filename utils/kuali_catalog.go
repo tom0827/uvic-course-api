@@ -9,13 +9,9 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"time"
 )
 
-var (
-	cacheDuration   = 60 * time.Minute
-	redisCatalogKey = "kuali_catalog"
-)
+const redisCatalogKey = "kuali_catalog"
 
 func GetKualiCatalog() ([]models.KualiCourse, error) {
 
@@ -44,7 +40,7 @@ func GetKualiCatalog() ([]models.KualiCourse, error) {
 
 	// Set Redis cache
 	data, _ := json.Marshal(courses)
-	_ = redis.Set(redisCatalogKey, string(data), cacheDuration)
+	_ = redis.Set(redisCatalogKey, string(data), constants.CacheDuration)
 	return courses, nil
 }
 
@@ -97,7 +93,7 @@ func GetKualiCourseInfo(pid string, course string) (*models.KualiCourseInfo, err
 
 	// Cache result
 	data, _ := json.Marshal(courseInfo)
-	_ = redis.Set(cacheKey, string(data), 60*time.Minute)
+	_ = redis.Set(cacheKey, string(data), constants.CacheDuration)
 	return &courseInfo, nil
 }
 

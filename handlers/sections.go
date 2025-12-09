@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -93,12 +92,12 @@ func SectionHandler(c *gin.Context) {
 		utils.WriteSuccess(c, []map[string]any{})
 		// Cache empty result for short time
 		data, _ := json.Marshal([]map[string]any{})
-		_ = redis.Set(cacheKey, string(data), 10*time.Minute)
+		_ = redis.Set(cacheKey, string(data), constants.CacheDuration)
 		return
 	}
 
 	// Cache result
 	data, _ := json.Marshal(result)
-	_ = redis.Set(cacheKey, string(data), 60*time.Minute)
+	_ = redis.Set(cacheKey, string(data), constants.CacheDuration)
 	utils.WriteSuccess(c, result)
 }
