@@ -45,6 +45,7 @@ func GetKualiCatalog() ([]models.KualiCourse, error) {
 	return courses, nil
 }
 
+// TODO: Determine better way to cache catalog to allow for faster searches
 func GetKualiCourseInfo(pid string, course string) (*models.KualiCourseInfo, error) {
 	if pid == "" {
 		var courses []models.KualiCourse
@@ -94,7 +95,7 @@ func GetKualiCourseInfo(pid string, course string) (*models.KualiCourseInfo, err
 
 	// Cache result
 	data, _ := json.Marshal(courseInfo)
-	_ = redis.Set(cacheKey, string(data), time.Hour)
+	_ = redis.Set(cacheKey, string(data), 24*time.Hour)
 	return &courseInfo, nil
 }
 
