@@ -89,9 +89,12 @@ func SectionHandler(c *gin.Context) {
 	}
 
 	if int(numOfSections) == 0 {
-		utils.WriteSuccess(c, []map[string]any{})
-		// Cache empty result for short time
-		data, _ := json.Marshal([]map[string]any{})
+		result := map[string]interface{}{
+			"sectionsFetchedCount": 0,
+			"sections":             []map[string]any{},
+		}
+		utils.WriteSuccess(c, result)
+		data, _ := json.Marshal(result)
 		_ = redis.Set(cacheKey, string(data), constants.CacheDuration)
 		return
 	}
