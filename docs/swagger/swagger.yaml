@@ -1,10 +1,5 @@
-basePath: /api
-host: coursesystem.app
 info:
   contact: {}
-  description: API for accessing course information
-  title: Course API
-  version: "1.0"
 paths:
   /courses:
     get:
@@ -93,12 +88,12 @@ paths:
       description: Get sections for a specific course in a specific term
       parameters:
       - description: Term ID (e.g., 202505)
-        in: path
+        in: query
         name: term
         required: true
         type: string
       - description: Course ID (e.g., SENG499)
-        in: path
+        in: query
         name: course
         required: true
         type: string

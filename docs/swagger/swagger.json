@@ -1,13 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "API for accessing course information",
-        "title": "Course API",
-        "contact": {},
-        "version": "1.0"
+        "contact": {}
     },
-    "host": "coursesystem.app",
-    "basePath": "/api",
     "paths": {
         "/courses": {
             "get": {
@@ -147,14 +142,14 @@
                         "type": "string",
                         "description": "Term ID (e.g., 202505)",
                         "name": "term",
-                        "in": "path",
+                        "in": "query",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "Course ID (e.g., SENG499)",
                         "name": "course",
-                        "in": "path",
+                        "in": "query",
                         "required": true
                     }
                 ],
